@@ -79,7 +79,7 @@ const months = [
 //       },
 //       {
 //         id: "sdfsad156384s2df65",
-//         title: "Event 2 " what sub bero",
+//         title: "Event 2 what sub bero",
 //         time: "10:00 AM - 10:00 AM",
 //         description: "hello you need to do this and that brofdssdfsd",
 //         subject: "E221055",
@@ -451,6 +451,7 @@ addEventSubmit.addEventListener("click", () => {
   }
 
   console.log(eventsArr);
+  console.log(JSON.stringify(eventsArr));
   addEventWrapper.classList.remove("active");
   addEventTitle.value = "";
   addEventFrom.value = "";

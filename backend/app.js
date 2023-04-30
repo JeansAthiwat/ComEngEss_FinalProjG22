@@ -8,6 +8,7 @@ dotenv.config({ path: "./config.env" });
 const AppError = require("./utils/appError");
 const itemsRoutes = require("./routes/itemRoutes");
 const coursevilleRoutes = require("./routes/coursevilleRoutes");
+const eventsRoutes = require("./routes/eventRoutes"); //--
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/items", itemsRoutes);
 app.use("/courseville", coursevilleRoutes);
+app.use("/events", eventsRoutes)
 app.get("/", (req, res) => {
     res.send("Congratulation. This server is successfully run.");
 });
