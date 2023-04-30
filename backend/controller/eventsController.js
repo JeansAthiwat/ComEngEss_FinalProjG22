@@ -56,7 +56,35 @@ exports.updateEvent = async (req, res) => {
   }
 };
 
-// TODO #1.3: add new student+Event to DynamoDB
+// // TODO #1.3: Updates an assignmet_id_finished to DynamoDB
+exports.updateAssignment = async (req, res) => {
+  const student_id = req.params.student_id;
+  // Set the parameters.
+  const params = {
+    TableName: process.env.aws_events_table_name,
+    Key: {
+      student_id: student_id,
+    },
+    UpdateExpression: "SET assignment_id_finished = :assignment_id_finished",
+    ExpressionAttributeValues: {
+      ":assignment_id_finished": req.body,
+    },
+  };
+  try {
+    const data = await docClient.send(new UpdateCommand(params));
+    res.send("conplete");
+    console.log("Success - event_list updated", data);
+  } catch (err) {
+    console.log("Error -", err);
+    res.status(500).send(err);
+  }
+};
+
+
+
+
+
+// TODO #1.4: add new student+Event to DynamoDB
 exports.addEvent = async (req, res) => {
   const event = req.body;
 
