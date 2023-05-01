@@ -44,12 +44,6 @@ const months = [
   "December",
 ];
 
-// NEW DATA SCTRUCTURE
-
-// TABLE OF STUDENT
-// student_id     assignment_id_finished         eventsArr
-// 6531347621      ["22561","54284","01684","54385"]
-
 // const eventsArr = [
 //   {
 //     day: 13,
@@ -257,7 +251,7 @@ function getActiveDay(date) {
   eventDate.innerHTML = date + " " + months[month] + " " + year;
 }
 
-//function update events when a day is active ?????EDITED
+//function update events when a day is active
 function updateEvents(date) {
   let events = "";
   eventsArr.forEach((event) => {
@@ -269,7 +263,7 @@ function updateEvents(date) {
       event.events.forEach((event) => {
         events += `<div class="event">
             <div class="title">
-              <i class="fas fa-circle"></i>
+              <i class="fas fa-circle">-</i>
               <h3 class="event-title">${event.title}</h3>
             </div>
             <div class="event-time">
@@ -620,24 +614,28 @@ loginBtn.addEventListener("click", () => {
 });
 
 const initData = async () => {
-  getUserProfile().then(() => {
-    getEventsTableFromDB(current_id).then((res) => {
-      res[1].forEach((assignmentId) => {
-        assignment_id_finished.add(assignmentId);
-      });
-      console.log("pass here");
-      try {
-        convertAssignmentToEventsArr().then(() => {
-          getEvents().then(() => {
-            initCalendar();
-            console.log("calender inited through initdata");
-          });
+  await getUserProfile().then(() => {
+    getEventsTableFromDB(current_id)
+      .then((res) => {
+        res[1].forEach((assignmentId) => {
+          assignment_id_finished.add(assignmentId);
         });
-      } catch (error) {
+        console.log("pass here");
+      })
+      .then(() => {
+       convertAssignmentToEventsArr();
+      })
+      .then(() => {
+        getEvents();
+      })
+      .then(() => {
+        console.log("calender inited through initdata");
+      })
+      .catch((error) => {
         console.log("u aint logged in", error);
-      }
-    });
+      });
   });
+  
 };
 // Add click event listener to logout button
 logoutBtn.addEventListener("click", () => {
@@ -729,19 +727,11 @@ const getUserAssignment = async (cv_cid) => {
   });
   // console.log("assignmentsArr",assignmentsArr);
   return assignmentsArr;
-  // const lokks_like_this = [
-  //   {
-  //     itemid: 839422,
-  //     title: "Final class: Workshop Disaster Resilience Cluster (Feedback)",
-  //     duedate: "2022-11-25",
-  //     duetime: 1669392600,
-  //   } ,
-  // ];
 };
 
 const convertAssignmentToEventsArr = async () => {
   const coursesAssignmentsList = [];
-  getUserCourse().then((coursesArr) => {
+  await getUserCourse().then((coursesArr) => {
     coursesArr.map((course) => {
       const current_cv_cid = course.cv_cid;
       const current_course_title = course.title;
@@ -770,9 +760,9 @@ const convertAssignmentToEventsArr = async () => {
           const eventSubject = current_course_no;
           const eventStatus = 0;
           // console.log("eventID", assignment_id_finished,eventID);
-          console.log(assignment_id_finished.has(eventID));
+          // console.log(assignment_id_finished.has(eventID));
           if (assignment_id_finished.has(eventID)) {
-            console.log("Assignment already done", eventID);
+            // console.log("Assignment already done", eventID);
             return;
           }
           const newEvent = {
@@ -808,15 +798,10 @@ const convertAssignmentToEventsArr = async () => {
               events: [newEvent],
             });
           }
-
-          // updateEvents(activeDay);
-          // console.log(eventsArr);
-          // console.log(JSON.stringify(eventsArr));
-          // updateEvents(activeDay);
-          // saveEvents();
+          initCalendar();
         });
       });
     });
   });
-  console.log("convertAssignmentToEventsArr", eventsArr);
+  // console.log("convertAssignmentToEventsArr", eventsArr);
 };
