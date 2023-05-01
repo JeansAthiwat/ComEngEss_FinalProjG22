@@ -621,18 +621,22 @@ loginBtn.addEventListener("click", () => {
 
 const initData = async () => {
   getUserProfile().then(() => {
-    getEventsTableFromDB(current_id);
-    console.log("pass here");
-    try {
-      convertAssignmentToEventsArr().then(() => {
-        getEvents().then(() => {
-          initCalendar();
-          console.log("calender inited through initdata");
-        });
+    getEventsTableFromDB(current_id).then((res) => {
+      res[1].forEach((assignmentId) => {
+        assignment_id_finished.add(assignmentId);
       });
-    } catch (error) {
-      console.log("u aint logged in", error);
-    }
+      console.log("pass here");
+      try {
+        convertAssignmentToEventsArr().then(() => {
+          getEvents().then(() => {
+            initCalendar();
+            console.log("calender inited through initdata");
+          });
+        });
+      } catch (error) {
+        console.log("u aint logged in", error);
+      }
+    });
   });
 };
 // Add click event listener to logout button
@@ -765,60 +769,46 @@ const convertAssignmentToEventsArr = async () => {
           const eventDescription = `${current_course_title}`;
           const eventSubject = current_course_no;
           const eventStatus = 0;
-
-          let eventExist = false;
-          eventsArr.forEach((event) => {
-            if (
-              event.day === current_assignment_duedate_day &&
-              event.month === current_assignment_duedate_month &&
-              event.year === current_assignment_duedate_year
-            ) {
-              event.events.forEach((event) => {
-                if (assignment_id_finished.has(event.id)) {
-                  eventExist = true;
-                }
-              });
-            }
-          });
-          if (eventExist) {
+          // console.log("eventID", assignment_id_finished,eventID);
+          console.log(assignment_id_finished.has(eventID));
+          if (assignment_id_finished.has(eventID)) {
             console.log("Assignment already done", eventID);
+            return;
           }
-          else{
-            const newEvent = {
-              id: eventID,
-              title: eventTitle,
-              time: '"Due Today"',
-              description: eventDescription,
-              subject: eventSubject,
-              status: eventStatus,
-            };
-            // console.log("newEvent",newEvent);
-            // console.log(activeDay);
-            let eventAdded = false;
-            if (eventsArr.length > 0) {
-              eventsArr.forEach((item) => {
-                if (
-                  item.day === current_assignment_duedate_day &&
-                  item.month === current_assignment_duedate_month &&
-                  item.year === current_assignment_duedate_year
-                ) {
-                  item.events.push(newEvent);
-                  eventAdded = true;
-                }
-                // console.log("eventsArr",eventsArr);
-              });
-            }
-  
-            if (!eventAdded) {
-              eventsArr.push({
-                day: current_assignment_duedate_day,
-                month: current_assignment_duedate_month,
-                year: current_assignment_duedate_year,
-                events: [newEvent],
-              });
-            }
+          const newEvent = {
+            id: eventID,
+            title: eventTitle,
+            time: '"Due Today"',
+            description: eventDescription,
+            subject: eventSubject,
+            status: eventStatus,
+          };
+          // console.log("newEvent",newEvent);
+          // console.log(activeDay);
+          let eventAdded = false;
+          if (eventsArr.length > 0) {
+            eventsArr.forEach((item) => {
+              if (
+                item.day === current_assignment_duedate_day &&
+                item.month === current_assignment_duedate_month &&
+                item.year === current_assignment_duedate_year
+              ) {
+                item.events.push(newEvent);
+                eventAdded = true;
+              }
+              // console.log("eventsArr",eventsArr);
+            });
           }
-          
+
+          if (!eventAdded) {
+            eventsArr.push({
+              day: current_assignment_duedate_day,
+              month: current_assignment_duedate_month,
+              year: current_assignment_duedate_year,
+              events: [newEvent],
+            });
+          }
+
           // updateEvents(activeDay);
           // console.log(eventsArr);
           // console.log(JSON.stringify(eventsArr));
