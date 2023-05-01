@@ -78,8 +78,8 @@ const months = [
 
 const eventsArr = [];
 const assignment_id_finished = new Set();
-const current_id = "6531347623";
-getEvents();
+var current_id = "6531347623";
+initCalendar();
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
 function initCalendar() {
@@ -236,7 +236,7 @@ dateInput.addEventListener("input", (e) => {
 gotoBtn.addEventListener("click", gotoDate);
 
 function gotoDate() {
-  console.log("here");
+  //console.log("here");
   const dateArr = dateInput.value.split("/");
   if (dateArr.length === 2) {
     if (dateArr[0] > 0 && dateArr[0] < 13 && dateArr[1].length === 4) {
@@ -454,7 +454,7 @@ eventsContainer.addEventListener("click", (e) => {
   if (e.target.classList.contains("event")) {
     if (confirm("Are you sure you want to delete this event?")) {
       const eventID = e.target.children[4].children[0].innerHTML;
-      console.log(eventID);
+      // console.log(eventID);
       eventsArr.forEach((event) => {
         if (
           event.day === activeDay &&
@@ -496,15 +496,13 @@ async function getEvents() {
   await getEventsTableFromDB(current_id).then((res) => {
     const eventsList = res[0];
     const assignmentIdList = res[1];
-    console.log("res", res);
-    console.log(assignmentIdList);
+    // console.log("res", res);
     eventsArr.push(...eventsList);
     assignmentIdList.forEach((assignmentId) => {
       assignment_id_finished.add(assignmentId);
     });
     console.log("geteventeventsArr", eventsArr);
     console.log("assignment_id_finished", assignment_id_finished);
-    initCalendar();
   });
 }
 
@@ -542,7 +540,7 @@ async function getEventsTableFromDB(current_id) {
           events: event_list.events,
         });
       });
-      console.log("eventsList", eventsList);
+      // console.log("eventsList", eventsList);
     })
     .catch((error) => console.error(error));
   return [eventsList, assignmentIdList];
@@ -563,14 +561,36 @@ async function updateAssignmentIdToDB(current_id) {
   console.log("updateAssignmentIdToDB", response);
 }
 
+const cleanUp = (eventsArr) => {
+  const eventsArrToDB = [];
+  eventsArr.map((eventwithdate) => {
+    const temp_events = [];
+    eventwithdate.events.map((event) => {
+      if (event.status == 0 || event.status == null) {
+        return;
+      }
+      temp_events.push(event);
+    });
+    if (temp_events.length > 0) {
+      eventsArrToDB.push({
+        day: eventwithdate.day,
+        month: eventwithdate.month,
+        year: eventwithdate.year,
+        events: temp_events,
+      });
+    }
+  });
+  return eventsArrToDB;
+};
+
 async function updateEventsIdToDB(current_id) {
   const options = {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify(eventsArr),
+    body: JSON.stringify(cleanUp(eventsArr)),
   };
-  console.log("show booty", JSON.stringify(eventsArr));
+  // console.log("updateEventsIdToDB", JSON.stringify(eventsArr));
   const response = await fetch(
     `http://${backendIPAddress}/events/event/${current_id}`,
     options
@@ -581,6 +601,49 @@ async function updateEventsIdToDB(current_id) {
 const authorizeApplication = () => {
   window.location.href = `http://${backendIPAddress}/courseville/auth_app`;
 };
+
+const logout = async () => {
+  window.location.href = `http://${backendIPAddress}/courseville/logout`;
+  current_id = "";
+  // console.log("current_id", current_id);
+  document.getElementById("eng-name-info").innerHTML = "";
+  document.getElementById("thai-name-info").innerHTML = "";
+};
+
+loginBtn.addEventListener("click", () => {
+  //handle login
+  authorizeApplication();
+  // Assume login is successful and user data is retrieved
+  initData();
+  loginBtn.style.display = "none";
+  logoutBtn.style.display = "block";
+});
+
+const initData = async () => {
+  getUserProfile().then(() => {
+    getEventsTableFromDB(current_id);
+    console.log("pass here");
+    try {
+      convertAssignmentToEventsArr().then(() => {
+        getEvents().then(() => {
+          initCalendar();
+          console.log("calender inited through initdata");
+        });
+      });
+    } catch (error) {
+      console.log("u aint logged in", error);
+    }
+  });
+};
+// Add click event listener to logout button
+logoutBtn.addEventListener("click", () => {
+  //handle logout
+  logout();
+  // Hide user profile
+  userProfile.innerHTML = "";
+  logoutBtn.style.display = "none";
+  loginBtn.style.display = "block";
+});
 
 const getUserProfile = async () => {
   const options = {
@@ -593,250 +656,177 @@ const getUserProfile = async () => {
   )
     .then((response) => response.json())
     .then((data) => {
-      console.log(data.user);
+      // console.log("data", data);
+      const studentInfo = data.data.student;
+      current_id = studentInfo.id;
+      console.log("current_id", current_id);
+      console.log("getUserProfile", studentInfo);
       document.getElementById(
         "eng-name-info"
-      ).innerHTML = ` ${data.user.firstname_en} ${data.user.lastname_en}`;
+      ).innerHTML = ` ${studentInfo.firstname_en} ${studentInfo.lastname_en}`;
       document.getElementById(
         "thai-name-info"
-      ).innerHTML = ` ${data.user.firstname_th} ${data.user.lastname_th}`;
+      ).innerHTML = ` ${studentInfo.firstname_th} ${studentInfo.lastname_th}`;
     })
     .catch((error) => console.error(error));
 };
 
-const logout = async () => {
-  window.location.href = `http://${backendIPAddress}/courseville/logout`;
-  document.getElementById("eng-name-info").innerHTML = "";
-  document.getElementById("thai-name-info").innerHTML = "";
+const getUserCourse = async () => {
+  const options = {
+    method: "GET",
+    credentials: "include",
+  };
+  const res = await fetch(
+    `http://${backendIPAddress}/courseville/get_courses`,
+    options
+  );
+  const data = await res.json();
+  console.log(data);
+  const courses = await data.data.student;
+
+  const coursesArr = [];
+  courses.map((course) => {
+    const courseData = {
+      cv_cid: course.cv_cid,
+      title: course.title,
+      course_no: course.course_no,
+    };
+    coursesArr.push(courseData);
+  });
+  return coursesArr;
+  // [
+  //   { cv_cid: 29667,
+  // title: "Compudatcourse.title",
+  // course_no: "2100111"
+  // },
+  // ]
 };
 
-// Add click event listener to login button
-loginBtn.addEventListener("click", () => {
-  //handle login
-  authorizeApplication();
-  // Assume login is successful and user data is retrieved
-  getUserProfile();
-  loginBtn.style.display = "none";
-  // Show logout button
-  logoutBtn.style.display = "block";
-});
+const getUserAssignment = async (cv_cid) => {
+  const assignmentsArr = [];
+  const options = {
+    method: "GET",
+    credentials: "include",
+  };
+  const res = await fetch(
+    `http://${backendIPAddress}/courseville/get_course_assignments/${cv_cid}&detail=1`,
+    options
+  );
 
-// Add click event listener to logout button
-logoutBtn.addEventListener("click", () => {
-  //handle logout
-  logout();
+  const assignments = (await res.json()).data;
+  // console.log("assignments",assignments);
+  assignments.map((assignment) => {
+    assignmentsArr.push({
+      itemid: assignment.itemid,
+      title: assignment.title,
+      duedate: assignment.duedate,
+      duetime: assignment.duetime,
+    });
+  });
+  // console.log("assignmentsArr",assignmentsArr);
+  return assignmentsArr;
+  // const lokks_like_this = [
+  //   {
+  //     itemid: 839422,
+  //     title: "Final class: Workshop Disaster Resilience Cluster (Feedback)",
+  //     duedate: "2022-11-25",
+  //     duetime: 1669392600,
+  //   } ,
+  // ];
+};
 
-  // Hide user profile
-  userProfile.innerHTML = "";
-  // Hide logout button
-  logoutBtn.style.display = "none";
-  // Show login button
-  loginBtn.style.display = "block";
-});
+const convertAssignmentToEventsArr = async () => {
+  const coursesAssignmentsList = [];
+  getUserCourse().then((coursesArr) => {
+    coursesArr.map((course) => {
+      const current_cv_cid = course.cv_cid;
+      const current_course_title = course.title;
+      const current_course_no = course.course_no;
+      getUserAssignment(current_cv_cid).then((assignmentsArr) => {
+        assignmentsArr.map((assignment) => {
+          const current_itemid = assignment.itemid.toString();
+          const current_assignment_title = assignment.title;
+          const current_assignment_duetime = assignment.duetime;
+          if (assignment.duedate === null || assignment.duedate === "") {
+            return;
+          }
+          const current_assignment_duedate_day = Number(
+            assignment.duedate.slice(8, 10)
+          );
+          const current_assignment_duedate_month = Number(
+            assignment.duedate.slice(5, 7)
+          );
+          const current_assignment_duedate_year = Number(
+            assignment.duedate.slice(0, 4)
+          );
 
+          const eventID = current_itemid;
+          const eventTitle = current_assignment_title.slice(0, 60);
+          const eventDescription = `${current_course_title}`;
+          const eventSubject = current_course_no;
+          const eventStatus = 0;
 
-
-
-
-// const getCompEngEssUserCoursesArray = async () => {
-//   const coursesArr = [];
-//   const options = {
-//     method: "GET",
-//     credentials: "include",
-//   };
-//   const res = await fetch(
-//     `http://${backendIPAddress}/courseville/get_courses`,
-//     options
-//   );
-
-//   const data = await res.json();
-//   console.log(data);
-//   const course = await data.data.student.map((course) => {
-//     coursesArr.push({
-//       cv_cid: course.cv_cid,
-//       course_no: course.course_no,
-//       year: course.year,
-//       semester: course.semester,
-//       section: course.section,
-//       role: course.role,
-//       title: course.title,
-//     });
-//   });
-//   return coursesArr;
-// };
-
-// const getCompEngEssUserEvents = async (coursesArr) => {
-//   const eventsArray = [];
-//   coursesArr.map((course) => {
-//     const cv_cid = course.cv_cid;
-//     const course_no = course.course_no;
-//     const title = course.title;
-//     //get all assignment from a cv_cid [{},{},{},{}]
-
-//     //got assignment map
-
-//     put assignment map into eventsArray
-
-
-
-    
-
-//   })
-
-// }
-
-// const getCompEngEssAssignment = async (cv_cid) => {
-//   const options = {
-//       method: "GET",
-//       credentials: "include",
-//   };
-//   const res = await fetch(
-//       `http://${backendIPAddress}/courseville/get_course_assignments/${cv_cid}&detail=1`,
-//       options
-//   );
-
-//   const data = (await res.json()).data;
-//   console.log(data);
-//   data.map((assignment)=> {
-//     {
-//         const day,month,year = convertTimeFromUnix(assignment.duetime);
-
-//           day: 13,
-//           month: 11,
-//           year: 2022,
-//           events: [
-//             {
-//               id: "22504",
-//               title: "Event 1 lorem ipsun dolar sit genfa tersd dsad ",
-//               time: "10:00 AM - 10:00 AM",
-//               description: "hello you need to do this and that bro",
-//               subject: "E22101225",
-//               status: 0
-//             },
-//             {
-//               id: "sdfsad156384s2df65",
-//               title: "Event 2 what sub bero",
-//               time: "10:00 AM - 10:00 AM",
-//               description: "hello you need to do this and that brofdssdfsd",
-//               subject: "E221055",
-//               status: 1
-//             },
-//           ],
-//         }
-//   })
-// };
-
-// const convertTimeFromUnix = (timeUnix) => {
-// const date = new Date(timeUnix * 1000);
-// const year = date.getFullYear();
-// const month = date.getMonth() + 1; // add 1 to get month in 1-12 format instead of 0-11
-// const day = date.getDate();
-
-// return [day,month,year];
-// }
-
-// const addEventToEventsArr = () => {
-//   const eventID = Date.now().toString();
-//   const eventTitle = addEventTitle.value;
-//   const eventTimeFrom = addEventFrom.value;
-//   const eventTimeTo = addEventTo.value;
-//   const eventDescription = addEventDescription.value;
-//   const eventSubject = addEventSubject.value;
-//   const eventStatus = 1;
-
-//   if (
-//     eventTitle === "" ||
-//     eventTimeFrom === "" ||
-//     eventTimeTo === "" ||
-//     eventDescription === "" ||
-//     eventSubject === ""
-//   ) {
-//     alert("Please fill all the fields");
-//     return;
-//   }
-
-//   //check correct time format 24 hour
-//   const timeFromArr = eventTimeFrom.split(":");
-//   const timeToArr = eventTimeTo.split(":");
-//   if (
-//     timeFromArr.length !== 2 ||
-//     timeToArr.length !== 2 ||
-//     timeFromArr[0] > 23 ||
-//     timeFromArr[1] > 59 ||
-//     timeToArr[0] > 23 ||
-//     timeToArr[1] > 59 ||
-//     timeFromArr[0] * 100 + timeFromArr[1] > timeToArr[0] * 100 + timeToArr[1]
-//   ) {
-//     alert("Invalid Time Format");
-//     return;
-//   }
-
-//   const timeFrom = convertTime(eventTimeFrom);
-//   const timeTo = convertTime(eventTimeTo);
-
-//   //check if event is already added
-//   let eventExist = false;
-//   eventsArr.forEach((event) => {
-//     if (
-//       event.day === activeDay &&
-//       event.month === month + 1 &&
-//       event.year === year
-//     ) {
-//       event.events.forEach((event) => {
-//         if (event.title === eventTitle) {
-//           eventExist = true;
-//         }
-//       });
-//     }
-//   });
-//   if (eventExist) {
-//     alert("Event already added");
-//     return;
-//   }
-//   const newEvent = {
-//     id: eventID,
-//     title: eventTitle,
-//     time: timeFrom + " - " + timeTo,
-//     description: eventDescription,
-//     subject: eventSubject,
-//     status: eventStatus,
-//   };
-//   console.log(newEvent);
-//   console.log(activeDay);
-//   let eventAdded = false;
-//   if (eventsArr.length > 0) {
-//     eventsArr.forEach((item) => {
-//       if (
-//         item.day === activeDay &&
-//         item.month === month + 1 &&
-//         item.year === year
-//       ) {
-//         item.events.push(newEvent);
-//         eventAdded = true;
-//       }
-//     });
-//   }
-
-//   if (!eventAdded) {
-//     eventsArr.push({
-//       day: activeDay,
-//       month: month + 1,
-//       year: year,
-//       events: [newEvent],
-//     });
-//   }
-
-//   console.log(eventsArr);
-//   // console.log(JSON.stringify(eventsArr));
-//   addEventWrapper.classList.remove("active");
-//   addEventTitle.value = "";
-//   addEventFrom.value = "";
-//   addEventTo.value = "";
-//   // updateEvents(activeDay);
-//   // saveEvents();
-//   //select active day and add event class if not added
-//   const activeDayEl = document.querySelector(".day.active");
-//   if (!activeDayEl.classList.contains("event")) {
-//     activeDayEl.classList.add("event");
-//   }
-// }
+          let eventExist = false;
+          eventsArr.forEach((event) => {
+            if (
+              event.day === current_assignment_duedate_day &&
+              event.month === current_assignment_duedate_month &&
+              event.year === current_assignment_duedate_year
+            ) {
+              event.events.forEach((event) => {
+                if (assignment_id_finished.has(event.id)) {
+                  eventExist = true;
+                }
+              });
+            }
+          });
+          if (eventExist) {
+            console.log("Assignment already done", eventID);
+          }
+          else{
+            const newEvent = {
+              id: eventID,
+              title: eventTitle,
+              time: '"Due Today"',
+              description: eventDescription,
+              subject: eventSubject,
+              status: eventStatus,
+            };
+            // console.log("newEvent",newEvent);
+            // console.log(activeDay);
+            let eventAdded = false;
+            if (eventsArr.length > 0) {
+              eventsArr.forEach((item) => {
+                if (
+                  item.day === current_assignment_duedate_day &&
+                  item.month === current_assignment_duedate_month &&
+                  item.year === current_assignment_duedate_year
+                ) {
+                  item.events.push(newEvent);
+                  eventAdded = true;
+                }
+                // console.log("eventsArr",eventsArr);
+              });
+            }
+  
+            if (!eventAdded) {
+              eventsArr.push({
+                day: current_assignment_duedate_day,
+                month: current_assignment_duedate_month,
+                year: current_assignment_duedate_year,
+                events: [newEvent],
+              });
+            }
+          }
+          
+          // updateEvents(activeDay);
+          // console.log(eventsArr);
+          // console.log(JSON.stringify(eventsArr));
+          // updateEvents(activeDay);
+          // saveEvents();
+        });
+      });
+    });
+  });
+  console.log("convertAssignmentToEventsArr", eventsArr);
+};
