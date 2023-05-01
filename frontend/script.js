@@ -75,7 +75,7 @@ const months = [
 
 const eventsArr = [];
 const assignment_id_finished = new Set();
-const current_id = "6531347626";
+const current_id = "6531347623";
 getEvents();
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
@@ -259,14 +259,12 @@ function getActiveDay(date) {
 //function update events when a day is active ?????EDITED
 function updateEvents(date) {
   let events = "";
-  console.log("eventsArr", eventsArr);
   eventsArr.forEach((event) => {
     if (
       date === event.day &&
       month + 1 === event.month &&
       year === event.year
     ) {
-      console.log("niggass", event);
       event.events.forEach((event) => {
         events += `<div class="event">
             <div class="title">
@@ -295,7 +293,7 @@ function updateEvents(date) {
         </div>`;
   }
   eventsContainer.innerHTML = events;
-  saveEvents();
+  //
 }
 
 //function to add event
@@ -436,12 +434,13 @@ addEventSubmit.addEventListener("click", () => {
   }
 
   console.log(eventsArr);
-  console.log(JSON.stringify(eventsArr));
+  // console.log(JSON.stringify(eventsArr));
   addEventWrapper.classList.remove("active");
   addEventTitle.value = "";
   addEventFrom.value = "";
   addEventTo.value = "";
   updateEvents(activeDay);
+  saveEvents();
   //select active day and add event class if not added
   const activeDayEl = document.querySelector(".day.active");
   if (!activeDayEl.classList.contains("event")) {
@@ -481,34 +480,30 @@ eventsContainer.addEventListener("click", (e) => {
         }
       });
       updateEvents(activeDay);
+      saveEvents();
     }
   }
 });
 
 //function to save events in local storage
 function saveEvents() {
-  localStorage.setItem("events", JSON.stringify(eventsArr));
-  localStorage.setItem(
-    "ids",
-    JSON.stringify(Array.from(assignment_id_finished))
-  );
-  // console.log(JSON.stringify(Array.from(assignment_id_finished)));
+  updateAssignmentIdToDB(current_id).then(() => updateEventsIdToDB(current_id));
 }
 
 //function to get events from local storage
 async function getEvents() {
   //check if events are already saved in local storage then return event else nothing
-  const ids = JSON.parse(localStorage.getItem("ids"));
-  if (ids && Array.isArray(ids)) {
-    ids.forEach((id) => {
-      assignment_id_finished.add(id);
-    });
-    console.log("ssignment_id_finished-", assignment_id_finished);
-  }
-
-  await getEventListFromDB(current_id).then((eventsList) => {
+  await getEventsTableFromDB(current_id).then((res) => {
+    const eventsList = res[0];
+    const assignmentIdList = res[1];
+    console.log("res", res);
+    console.log(assignmentIdList);
     eventsArr.push(...eventsList);
+    assignmentIdList.forEach((assignmentId) => {
+      assignment_id_finished.add(assignmentId);
+    });
     console.log("geteventeventsArr", eventsArr);
+    console.log("assignment_id_finished", assignment_id_finished);
     initCalendar();
   });
 }
@@ -524,9 +519,9 @@ function convertTime(time) {
   return time;
 }
 
-async function getEventListFromDB(current_id) {
+async function getEventsTableFromDB(current_id) {
   const eventsList = new Array();
-
+  const assignmentIdList = [];
   const options = {
     method: "GET",
     credentials: "include",
@@ -535,31 +530,51 @@ async function getEventListFromDB(current_id) {
     .then((response) => response.json())
     .then((data) => {
       console.log("data", data);
+        data.Item.assignment_id_finished.forEach((assignmentId) => {
+          assignmentIdList.push(assignmentId);
+        })
+      
       data.Item.events_list.map((event_list) => {
-        const tempEvents = new Array();
-        event_list.events.map((event) => {
-          tempEvents.push({
-            description: event.description,
-            id: event.id,
-            time: event.time,
-            title: event.title,
-            subject: event.subject,
-            status: 0,
-          });
-        });
         eventsList.push({
           day: event_list.day,
           month: event_list.month,
           year: event_list.year,
-          events: tempEvents,
+          events: event_list.events,
         });
       });
-      console.log("month",new Date().getMonth());
-      
       console.log("eventsList", eventsList);
-      console.log("reallitiy check", Array.isArray(eventsList[0].events));
-      // console.log("eventsList", Array.from(data.Item.events_list));
     })
     .catch((error) => console.error(error));
-  return eventsList;
+  return [eventsList, assignmentIdList];
+}
+
+async function updateAssignmentIdToDB(current_id) {
+  // PUT request using fetch with async/await
+  const options = {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(Array.from(assignment_id_finished)),
+  };
+  const response = await fetch(
+    `http://${backendIPAddress}/events/assignment/${current_id}`,
+    options
+  );
+  console.log("updateAssignmentIdToDB", response);
+}
+
+async function updateEventsIdToDB(current_id) {
+  // PUT request using fetch with async/await
+  const options = {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(eventsArr),
+  };
+  console.log("show booty",JSON.stringify(eventsArr));
+  const response = await fetch(
+    `http://${backendIPAddress}/events/event/${current_id}`,
+    options
+  );
+  console.log("updateEventsIdToDB", response);
 }

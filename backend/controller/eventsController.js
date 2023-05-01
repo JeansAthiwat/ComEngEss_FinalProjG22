@@ -48,7 +48,7 @@ exports.updateEvent = async (req, res) => {
   };
   try {
     const data = await docClient.send(new UpdateCommand(params));
-    res.send("conplete");
+    res.send("updateEvent complete");
     console.log("Success - event_list updated", data);
   } catch (err) {
     console.log("Error -", err);
