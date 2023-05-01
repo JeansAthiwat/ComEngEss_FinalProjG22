@@ -11,10 +11,7 @@ router.get(
   "/get_course_assignments/:cv_cid",
   coursevilleController.getCourseAssignments
 );
-router.get(
-  "/get_assignment_detail/:item_id",
-  coursevilleController.getAssignmentDetail
-);
+// router.get("/get_assignment_detail/:item_id",coursevilleController.getAssignmentDetail);
 router.get("/logout", coursevilleController.logout);
 
 module.exports = router;

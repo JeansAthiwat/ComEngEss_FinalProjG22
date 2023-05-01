@@ -50,7 +50,7 @@ exports.accessToken = (req, res) => {
                 console.log(req.session);
                 if (token) {
                     res.writeHead(302, {
-                        Location: `http://${process.env.frontendIPAddress}/frontend/home.html`,
+                        Location: `http://${process.env.frontendIPAddress}/home.html`,
                     });
                     res.end();
                 }
@@ -76,7 +76,7 @@ exports.getProfileInformation = (req, res) => {
             },
         };
         const profileReq = https.request(
-            "https://www.mycourseville.com/api/v1/public/users/me",
+            "https://www.mycourseville.com/api/v1/public/get/user/info",
             profileOptions,
             (profileRes) => {
                 let profileData = "";
@@ -171,7 +171,7 @@ exports.getCourseAssignments = (req, res) => {
 
 exports.logout = (req, res) => {
     req.session.destroy();
-    res.redirect(`http://${process.env.frontendIPAddress}/frontend/home.html`);
+    res.redirect(`http://${process.env.frontendIPAddress}/home.html`);
     res.end();
 };
 
