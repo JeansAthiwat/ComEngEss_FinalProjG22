@@ -19,6 +19,9 @@ const calendar = document.querySelector(".calendar"),
   addEventSubject = document.querySelector(".event-subject "),
   addEventSubmit = document.querySelector(".add-event-btn ");
 
+const loginBtn = document.getElementById("login-btn");
+const logoutBtn = document.getElementById("logout-btn");
+const userProfile = document.getElementById("user-profile");
 const backendIPAddress = "127.0.0.1:3000";
 
 let today = new Date();
@@ -158,8 +161,6 @@ function nextMonth() {
 
 prev.addEventListener("click", prevMonth);
 next.addEventListener("click", nextMonth);
-
-// initCalendar();
 
 //function to add active on day
 function addListner() {
@@ -452,7 +453,6 @@ addEventSubmit.addEventListener("click", () => {
 eventsContainer.addEventListener("click", (e) => {
   if (e.target.classList.contains("event")) {
     if (confirm("Are you sure you want to delete this event?")) {
-      //const eventTitle = e.target.children[0].children[1].innerHTML;
       const eventID = e.target.children[4].children[0].innerHTML;
       console.log(eventID);
       eventsArr.forEach((event) => {
@@ -530,10 +530,10 @@ async function getEventsTableFromDB(current_id) {
     .then((response) => response.json())
     .then((data) => {
       console.log("data", data);
-        data.Item.assignment_id_finished.forEach((assignmentId) => {
-          assignmentIdList.push(assignmentId);
-        })
-      
+      data.Item.assignment_id_finished.forEach((assignmentId) => {
+        assignmentIdList.push(assignmentId);
+      });
+
       data.Item.events_list.map((event_list) => {
         eventsList.push({
           day: event_list.day,
@@ -564,17 +564,279 @@ async function updateAssignmentIdToDB(current_id) {
 }
 
 async function updateEventsIdToDB(current_id) {
-  // PUT request using fetch with async/await
   const options = {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(eventsArr),
   };
-  console.log("show booty",JSON.stringify(eventsArr));
+  console.log("show booty", JSON.stringify(eventsArr));
   const response = await fetch(
     `http://${backendIPAddress}/events/event/${current_id}`,
     options
   );
   console.log("updateEventsIdToDB", response);
 }
+
+const authorizeApplication = () => {
+  window.location.href = `http://${backendIPAddress}/courseville/auth_app`;
+};
+
+const getUserProfile = async () => {
+  const options = {
+    method: "GET",
+    credentials: "include",
+  };
+  await fetch(
+    `http://${backendIPAddress}/courseville/get_profile_info`,
+    options
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.user);
+      document.getElementById(
+        "eng-name-info"
+      ).innerHTML = ` ${data.user.firstname_en} ${data.user.lastname_en}`;
+      document.getElementById(
+        "thai-name-info"
+      ).innerHTML = ` ${data.user.firstname_th} ${data.user.lastname_th}`;
+    })
+    .catch((error) => console.error(error));
+};
+
+const logout = async () => {
+  window.location.href = `http://${backendIPAddress}/courseville/logout`;
+  document.getElementById("eng-name-info").innerHTML = "";
+  document.getElementById("thai-name-info").innerHTML = "";
+};
+
+// Add click event listener to login button
+loginBtn.addEventListener("click", () => {
+  //handle login
+  authorizeApplication();
+  // Assume login is successful and user data is retrieved
+  getUserProfile();
+  loginBtn.style.display = "none";
+  // Show logout button
+  logoutBtn.style.display = "block";
+});
+
+// Add click event listener to logout button
+logoutBtn.addEventListener("click", () => {
+  //handle logout
+  logout();
+
+  // Hide user profile
+  userProfile.innerHTML = "";
+  // Hide logout button
+  logoutBtn.style.display = "none";
+  // Show login button
+  loginBtn.style.display = "block";
+});
+
+
+
+
+
+// const getCompEngEssUserCoursesArray = async () => {
+//   const coursesArr = [];
+//   const options = {
+//     method: "GET",
+//     credentials: "include",
+//   };
+//   const res = await fetch(
+//     `http://${backendIPAddress}/courseville/get_courses`,
+//     options
+//   );
+
+//   const data = await res.json();
+//   console.log(data);
+//   const course = await data.data.student.map((course) => {
+//     coursesArr.push({
+//       cv_cid: course.cv_cid,
+//       course_no: course.course_no,
+//       year: course.year,
+//       semester: course.semester,
+//       section: course.section,
+//       role: course.role,
+//       title: course.title,
+//     });
+//   });
+//   return coursesArr;
+// };
+
+// const getCompEngEssUserEvents = async (coursesArr) => {
+//   const eventsArray = [];
+//   coursesArr.map((course) => {
+//     const cv_cid = course.cv_cid;
+//     const course_no = course.course_no;
+//     const title = course.title;
+//     //get all assignment from a cv_cid [{},{},{},{}]
+
+//     //got assignment map
+
+//     put assignment map into eventsArray
+
+
+
+    
+
+//   })
+
+// }
+
+// const getCompEngEssAssignment = async (cv_cid) => {
+//   const options = {
+//       method: "GET",
+//       credentials: "include",
+//   };
+//   const res = await fetch(
+//       `http://${backendIPAddress}/courseville/get_course_assignments/${cv_cid}&detail=1`,
+//       options
+//   );
+
+//   const data = (await res.json()).data;
+//   console.log(data);
+//   data.map((assignment)=> {
+//     {
+//         const day,month,year = convertTimeFromUnix(assignment.duetime);
+
+//           day: 13,
+//           month: 11,
+//           year: 2022,
+//           events: [
+//             {
+//               id: "22504",
+//               title: "Event 1 lorem ipsun dolar sit genfa tersd dsad ",
+//               time: "10:00 AM - 10:00 AM",
+//               description: "hello you need to do this and that bro",
+//               subject: "E22101225",
+//               status: 0
+//             },
+//             {
+//               id: "sdfsad156384s2df65",
+//               title: "Event 2 what sub bero",
+//               time: "10:00 AM - 10:00 AM",
+//               description: "hello you need to do this and that brofdssdfsd",
+//               subject: "E221055",
+//               status: 1
+//             },
+//           ],
+//         }
+//   })
+// };
+
+// const convertTimeFromUnix = (timeUnix) => {
+// const date = new Date(timeUnix * 1000);
+// const year = date.getFullYear();
+// const month = date.getMonth() + 1; // add 1 to get month in 1-12 format instead of 0-11
+// const day = date.getDate();
+
+// return [day,month,year];
+// }
+
+// const addEventToEventsArr = () => {
+//   const eventID = Date.now().toString();
+//   const eventTitle = addEventTitle.value;
+//   const eventTimeFrom = addEventFrom.value;
+//   const eventTimeTo = addEventTo.value;
+//   const eventDescription = addEventDescription.value;
+//   const eventSubject = addEventSubject.value;
+//   const eventStatus = 1;
+
+//   if (
+//     eventTitle === "" ||
+//     eventTimeFrom === "" ||
+//     eventTimeTo === "" ||
+//     eventDescription === "" ||
+//     eventSubject === ""
+//   ) {
+//     alert("Please fill all the fields");
+//     return;
+//   }
+
+//   //check correct time format 24 hour
+//   const timeFromArr = eventTimeFrom.split(":");
+//   const timeToArr = eventTimeTo.split(":");
+//   if (
+//     timeFromArr.length !== 2 ||
+//     timeToArr.length !== 2 ||
+//     timeFromArr[0] > 23 ||
+//     timeFromArr[1] > 59 ||
+//     timeToArr[0] > 23 ||
+//     timeToArr[1] > 59 ||
+//     timeFromArr[0] * 100 + timeFromArr[1] > timeToArr[0] * 100 + timeToArr[1]
+//   ) {
+//     alert("Invalid Time Format");
+//     return;
+//   }
+
+//   const timeFrom = convertTime(eventTimeFrom);
+//   const timeTo = convertTime(eventTimeTo);
+
+//   //check if event is already added
+//   let eventExist = false;
+//   eventsArr.forEach((event) => {
+//     if (
+//       event.day === activeDay &&
+//       event.month === month + 1 &&
+//       event.year === year
+//     ) {
+//       event.events.forEach((event) => {
+//         if (event.title === eventTitle) {
+//           eventExist = true;
+//         }
+//       });
+//     }
+//   });
+//   if (eventExist) {
+//     alert("Event already added");
+//     return;
+//   }
+//   const newEvent = {
+//     id: eventID,
+//     title: eventTitle,
+//     time: timeFrom + " - " + timeTo,
+//     description: eventDescription,
+//     subject: eventSubject,
+//     status: eventStatus,
+//   };
+//   console.log(newEvent);
+//   console.log(activeDay);
+//   let eventAdded = false;
+//   if (eventsArr.length > 0) {
+//     eventsArr.forEach((item) => {
+//       if (
+//         item.day === activeDay &&
+//         item.month === month + 1 &&
+//         item.year === year
+//       ) {
+//         item.events.push(newEvent);
+//         eventAdded = true;
+//       }
+//     });
+//   }
+
+//   if (!eventAdded) {
+//     eventsArr.push({
+//       day: activeDay,
+//       month: month + 1,
+//       year: year,
+//       events: [newEvent],
+//     });
+//   }
+
+//   console.log(eventsArr);
+//   // console.log(JSON.stringify(eventsArr));
+//   addEventWrapper.classList.remove("active");
+//   addEventTitle.value = "";
+//   addEventFrom.value = "";
+//   addEventTo.value = "";
+//   // updateEvents(activeDay);
+//   // saveEvents();
+//   //select active day and add event class if not added
+//   const activeDayEl = document.querySelector(".day.active");
+//   if (!activeDayEl.classList.contains("event")) {
+//     activeDayEl.classList.add("event");
+//   }
+// }

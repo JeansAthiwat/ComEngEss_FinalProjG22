@@ -50,7 +50,7 @@ exports.accessToken = (req, res) => {
                 console.log(req.session);
                 if (token) {
                     res.writeHead(302, {
-                        Location: `http://${process.env.frontendIPAddress}/home.html`,
+                        Location: `http://${process.env.frontendIPAddress}/frontend/home.html`,
                     });
                     res.end();
                 }
@@ -110,7 +110,7 @@ exports.getCourses = (req, res) => {
             },
         };
         const profileReq = https.request(
-            "https://www.mycourseville.com/api/v1/public/get/user/courses",
+            "https://www.mycourseville.com/api/v1/public/get/user/courses?detail=1",
             profileOptions,
             (profileRes) => {
                 let profileData = "";
@@ -145,7 +145,7 @@ exports.getCourseAssignments = (req, res) => {
             },
         };
         const profileReq = https.request(
-            `https://www.mycourseville.com/api/v1/public/get/course/assignments?cv_cid=${cv_cid}`,
+            `https://www.mycourseville.com/api/v1/public/get/course/assignments?cv_cid=${cv_cid}&detail=1`,
             profileOptions,
             (profileRes) => {
                 let profileData = "";
@@ -169,16 +169,16 @@ exports.getCourseAssignments = (req, res) => {
     }
 };
 
-// Outstanding #2
-exports.getAssignmentDetail = (req, res) => {
-    const itemid = req.params.item_id;
-    // You should change the response below.
-    res.send("This route should get assignment details based on item_id.");
+exports.logout = (req, res) => {
+    req.session.destroy();
+    res.redirect(`http://${process.env.frontendIPAddress}/frontend/home.html`);
     res.end();
 };
 
-exports.logout = (req, res) => {
-    req.session.destroy();
-    res.redirect(`http://${process.env.frontendIPAddress}/login.html`);
-    res.end();
-};
+// // Outstanding #2
+// exports.getAssignmentDetail = (req, res) => {
+//     const itemid = req.params.item_id;
+//     // You should change the response below.
+//     res.send("This route should get assignment details based on item_id.");
+//     res.end();
+// };

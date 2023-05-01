@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 
 const AppError = require("./utils/appError");
-const itemsRoutes = require("./routes/itemRoutes");
+// const itemsRoutes = require("./routes/itemRoutes");
 const coursevilleRoutes = require("./routes/coursevilleRoutes");
 const eventsRoutes = require("./routes/eventRoutes"); //--
 

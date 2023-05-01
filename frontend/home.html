@@ -19,8 +19,23 @@
     <link rel="stylesheet" href="style.css" />
     <title>Calendar with Events</title>
   </head>
-  <body>
+  <body onload=getUserProfile()>
     <!-- onload="getEvents()" -->
+    <div class="top-bar">
+      <button id="login-btn" >Log in</button>
+      <section>
+        <div id="user-profile">
+          <p class="info"> Name-Surname (English) : <span id="eng-name-info"></span>
+          </br>
+          Name-Surname (Thai) : <span id="thai-name-info"></span></p>
+        </div>
+        
+      </section>
+      
+      <button id="logout-btn"  onclick="logout()">
+        Log out
+      </button>
+    </div>
     <div class="container">
       <div class="left">
         <div class="calendar">
@@ -104,10 +119,11 @@
         </div>
       </div>
       <button class="add-event">
-        <i class="fas fa-plus"></i>
+        <i class="fas fa-plus">+</i>
       </button>
     </div>
 
     <script src="script.js"></script>
+    <!-- <script src="script_cv.js"></script> -->
   </body>
 </html>
