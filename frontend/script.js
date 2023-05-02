@@ -22,7 +22,7 @@ const calendar = document.querySelector(".calendar"),
 const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const userProfile = document.getElementById("user-profile");
-const backendIPAddress = "127.0.0.1:3000";
+const backendIPAddress = "54.88.46.176:3000";
 
 let today = new Date();
 let activeDay;
