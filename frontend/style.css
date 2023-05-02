@@ -323,7 +323,7 @@ body {
 .events .event {
   position: relative;
   width: 95%;
-  min-height: 70px;
+  min-height: 140px;
   display: flex;
   justify-content: center;
   flex-direction: column;
