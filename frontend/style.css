@@ -39,6 +39,7 @@ body {
   width: 1200px;
   min-height: 850px;
   margin: 0 auto;
+  margin-top: 80px;
   padding: 5px;
   color: #fff;
   display: flex;

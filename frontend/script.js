@@ -1,3 +1,5 @@
+"use strict";
+
 const calendar = document.querySelector(".calendar"),
   date = document.querySelector(".date"),
   daysContainer = document.querySelector(".days"),
@@ -23,6 +25,7 @@ const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const userProfile = document.getElementById("user-profile");
 const backendIPAddress = "54.88.46.176:3000";
+// const backendIPAddress = "127.0.0.1:3000";
 
 let today = new Date();
 let activeDay;
@@ -654,12 +657,6 @@ logoutBtn.addEventListener("click", () => {
   userProfile.innerHTML = "";
   current_id = "";
   logout();
-  
-  // Hide user profile
-  
-  
-  // logoutBtn.style.display = "none";
-  // loginBtn.style.display = "block";
 });
 
 const getUserProfile = async () => {
@@ -817,5 +814,3 @@ const convertAssignmentToEventsArr = async () => {
   });
   // console.log("convertAssignmentToEventsArr", eventsArr);
 };
-
-
