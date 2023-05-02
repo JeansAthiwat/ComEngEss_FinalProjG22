@@ -593,18 +593,16 @@ async function updateEventsIdToDB(current_id) {
 }
 
 async function buttonVisibility() {
-  console.log(
-    "yuhoooo",
-    current_id == ""
-  );
   if (current_id == "") {
-    console.log("nahh");
     logoutBtn.style.visibility = "hidden";
-    loginBtn.style.visibility = "show";
+    logoutBtn.style.display = "none";
+    loginBtn.style.visibility = "visible";
+    loginBtn.style.display = "inline-block";
   } else {
-    logoutBtn.style.visibility = "show";
+    logoutBtn.style.visibility = "visible";
+    logoutBtn.style.display = "inline-block";
     loginBtn.style.visibility = "hidden";
-    console.log("yuhoooheee runed");
+    loginBtn.style.display = "none";
   }
 }
 
@@ -614,10 +612,8 @@ const authorizeApplication = () => {
 
 const logout = async () => {
   window.location.href = `http://${backendIPAddress}/courseville/logout`;
-  current_id = "";
   // console.log("current_id", current_id);
   document.getElementById("eng-name-info").innerHTML = "";
-
 };
 
 loginBtn.addEventListener("click", () => {
@@ -821,3 +817,5 @@ const convertAssignmentToEventsArr = async () => {
   });
   // console.log("convertAssignmentToEventsArr", eventsArr);
 };
+
+
