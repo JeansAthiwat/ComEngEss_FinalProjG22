@@ -72,7 +72,7 @@ const months = [
 
 const eventsArr = [];
 const assignment_id_finished = new Set();
-var current_id = "6531347623";
+var current_id = "";
 initCalendar();
 
 //function to add days in days with class day and prev-date next-date on previous month and next month days and active on today
@@ -592,6 +592,22 @@ async function updateEventsIdToDB(current_id) {
   console.log("updateEventsIdToDB", response);
 }
 
+async function buttonVisibility() {
+  console.log(
+    "yuhoooo",
+    current_id == ""
+  );
+  if (current_id == "") {
+    console.log("nahh");
+    logoutBtn.style.visibility = "hidden";
+    loginBtn.style.visibility = "show";
+  } else {
+    logoutBtn.style.visibility = "show";
+    loginBtn.style.visibility = "hidden";
+    console.log("yuhoooheee runed");
+  }
+}
+
 const authorizeApplication = () => {
   window.location.href = `http://${backendIPAddress}/courseville/auth_app`;
 };
@@ -601,7 +617,7 @@ const logout = async () => {
   current_id = "";
   // console.log("current_id", current_id);
   document.getElementById("eng-name-info").innerHTML = "";
-  document.getElementById("thai-name-info").innerHTML = "";
+
 };
 
 loginBtn.addEventListener("click", () => {
@@ -609,8 +625,6 @@ loginBtn.addEventListener("click", () => {
   authorizeApplication();
   // Assume login is successful and user data is retrieved
   initData();
-  loginBtn.style.display = "none";
-  logoutBtn.style.display = "block";
 });
 
 const initData = async () => {
@@ -623,28 +637,33 @@ const initData = async () => {
         console.log("pass here");
       })
       .then(() => {
-       convertAssignmentToEventsArr();
+        convertAssignmentToEventsArr();
       })
       .then(() => {
         getEvents();
       })
       .then(() => {
         console.log("calender inited through initdata");
+        
       })
       .catch((error) => {
         console.log("u aint logged in", error);
       });
+      buttonVisibility();
   });
-  
 };
 // Add click event listener to logout button
 logoutBtn.addEventListener("click", () => {
   //handle logout
-  logout();
-  // Hide user profile
   userProfile.innerHTML = "";
-  logoutBtn.style.display = "none";
-  loginBtn.style.display = "block";
+  current_id = "";
+  logout();
+  
+  // Hide user profile
+  
+  
+  // logoutBtn.style.display = "none";
+  // loginBtn.style.display = "block";
 });
 
 const getUserProfile = async () => {
@@ -665,10 +684,7 @@ const getUserProfile = async () => {
       console.log("getUserProfile", studentInfo);
       document.getElementById(
         "eng-name-info"
-      ).innerHTML = ` ${studentInfo.firstname_en} ${studentInfo.lastname_en}`;
-      document.getElementById(
-        "thai-name-info"
-      ).innerHTML = ` ${studentInfo.firstname_th} ${studentInfo.lastname_th}`;
+      ).innerHTML = `${studentInfo.firstname_en} ${studentInfo.lastname_en}`;
     })
     .catch((error) => console.error(error));
 };

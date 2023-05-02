@@ -448,7 +448,7 @@ body {
 }
 
 .add-event-wrapper.active {
-  max-height: 300px;
+  max-height: 350px;
 }
 
 .add-event-header {
@@ -652,4 +652,22 @@ body {
   justify-content: space-between;
   padding: 0 20px;
   z-index: 1000;
+}
+
+#login-btn, #logout-btn {
+  padding: 5px 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #373c4f;
+  color : white;
+  
+}
+
+.hiding {
+  display : none;
+}
+
+#login-btn:hover, #logout-btn:hover{
+  background-color: #7a85b4;
 }
