@@ -1,13 +1,13 @@
 # Description
 A Todolist with an extensive API data from MyCourseVille.A final project for Computer Engineering Essential class. 
 
-#FrontEnd
+# FrontEnd
 Using basics HTML,JavaScript,CSS as per the requirement of the assignment.
 
-#BackEnd
+# BackEnd
 Using Node.js and Express for backEnd API endpoints and dataBase connection
 
-#DataBase
+# DataBase
 Using MongoDB NoSQL database for the todolist data
 
 Deployed on the EC2 instance on AWS.
