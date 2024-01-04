@@ -19,3 +19,5 @@ Project Document : https://drive.google.com/file/d/1IKnY2KQ0CVqbd1rnFnntYrgMuMAe
 
 # Preview
 
+![Screenshot 2024-01-05 013426](https://github.com/JeansAthiwat/ComEngEss_FinalProjG22/assets/122895429/8aef086e-18b5-4a3b-b5f1-742bcd246c73)
+
