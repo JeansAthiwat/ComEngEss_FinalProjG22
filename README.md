@@ -1,5 +1,5 @@
 # Description
-A Todolist with an extensive API data from MyCourseVille.A final project for Computer Engineering Essential class. 
+A 'Calendar Reminder' with an extensive API data from MyCourseVille.A final project for Computer Engineering Essential class. 
 
 Deployed on the EC2 instance on AWS.
 
