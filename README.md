@@ -7,7 +7,7 @@ Deployed on the EC2 instance on AWS.
 Using basics HTML,JavaScript,CSS as per the requirement of the assignment.
 
 # BackEnd
-Using Node.js and Express for backEnd API endpoints and dataBase connection
+Using Node.js and Express for backEnd API endpoints and database connection.
 
 # DataBase
 Using MongoDB NoSQL database for the todolist data
