@@ -10,7 +10,7 @@ Using basics HTML,JavaScript,CSS as per the requirement of the assignment.
 Using Node.js and Express for backEnd API endpoints and database connection.
 
 # DataBase
-Using MongoDB NoSQL database for the todolist data
+Using MongoDB NoSQL database for the students data
 
 # Reference
 Presentation Slide : https://docs.google.com/presentation/d/1QWZQkhj0h5aTklyitDTms-4TqAqZnXhL/edit?usp=sharing&ouid=111698602118762819495&rtpof=true&sd=true
